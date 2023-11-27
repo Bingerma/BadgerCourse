@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -21,49 +22,38 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
 
     private EditText editTextSearch;
+    private Button searchButton;
     private ListView listViewResults;
     private ArrayAdapter<String> adapter;
 
     private String api = "curl -H \"Authorization: Token token=405f8fbc02dd4b7eb560ce722c7be74a\" https://api.madgrades.com/v1/courses?query=";
     private String out;
 
-    private class FetchRunnable implements Runnable{
-        @Override
-        public void run() {
-
-            String urlString = editTextSearch.getText().toString();
+    private String fetchURL(String urlString){
+        try {
+            java.net.URL url = new URL(urlString);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             try {
-                java.net.URL url = new URL(urlString);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    // Set the Authorization header
-                    urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+                // Set the Authorization header
+                urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
 
-                    InputStream in = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+                InputStream in = urlConnection.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                StringBuilder response = new StringBuilder();
+                String line;
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-
-                    out = response.toString();
-                } finally {
-                    urlConnection.disconnect();
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
                 }
-            } catch (IOException e) {
-                Log.e("HTTP Request", "Error: " + e.getMessage());
-                return;
+
+                return response.toString();
+            } finally {
+                urlConnection.disconnect();
             }
-
-
+        } catch (IOException e) {
+            Log.e("HTTP Request", "Error: " + e.getMessage());
+            return null;
         }
-    }
-
-    private void startSearch(View view){
-        FetchRunnable run = new FetchRunnable();
-        new Thread(run).start();
     }
 
     @Override
@@ -74,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         editTextSearch = findViewById(R.id.editTextSearch);
         listViewResults = findViewById(R.id.listViewResults);
+        searchButton = findViewById(R.id.Search);
 
         // Sample data
         String[] data = {"Apple", "Banana", "Orange", "Mango", "Grapes"};
@@ -96,5 +87,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {}
         });
+
+        searchButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fetchURL(editTextSearch.getText().toString());
+                    }
+                }
+        );
     }
 }
