@@ -5,16 +5,66 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText editTextSearch;
     private ListView listViewResults;
     private ArrayAdapter<String> adapter;
+
+    private String api = "curl -H \"Authorization: Token token=405f8fbc02dd4b7eb560ce722c7be74a\" https://api.madgrades.com/v1/courses?query=";
+    private String out;
+
+    private class FetchRunnable implements Runnable{
+        @Override
+        public void run() {
+
+            String urlString = editTextSearch.getText().toString();
+            try {
+                java.net.URL url = new URL(urlString);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                try {
+                    // Set the Authorization header
+                    urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+
+                    InputStream in = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    out = response.toString();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (IOException e) {
+                Log.e("HTTP Request", "Error: " + e.getMessage());
+                return;
+            }
+
+
+        }
+    }
+
+    private void startSearch(View view){
+        FetchRunnable run = new FetchRunnable();
+        new Thread(run).start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
