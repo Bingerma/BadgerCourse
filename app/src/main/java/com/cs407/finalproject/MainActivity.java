@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView listViewResults;
     private ArrayAdapter<String> adapter;
 
-    private String api = "curl -H \"Authorization: Token token=405f8fbc02dd4b7eb560ce722c7be74a\" https://api.madgrades.com/v1/courses?query=";
-    private String out;
+    private String api = "https://api.madgrades.com/v1/courses?query=";
+    private String[] data = {"Apple", "Banana", "Orange", "Mango", "Grapes"};
 
     private String fetchURL(String urlString){
         try {
@@ -61,40 +61,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         editTextSearch = findViewById(R.id.editTextSearch);
         listViewResults = findViewById(R.id.listViewResults);
         searchButton = findViewById(R.id.Search);
-
-        // Sample data
-        String[] data = {"Apple", "Banana", "Orange", "Mango", "Grapes"};
 
         // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
         listViewResults.setAdapter(adapter);
 
-        // Set up the search functionality
-        editTextSearch.addTextChangedListener(new TextWatcher() {
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                adapter.getFilter().filter(charSequence);
-                listViewResults.setVisibility(charSequence.length() > 0 ? View.VISIBLE : View.GONE);
+            public void onClick(View v) {
+                String output = fetchURL(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
+                Log.d("Website output",output);
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {}
         });
-
-        searchButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        fetchURL(editTextSearch.getText().toString());
-                    }
-                }
-        );
     }
 }
