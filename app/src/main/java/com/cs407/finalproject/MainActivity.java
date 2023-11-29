@@ -1,13 +1,18 @@
 package com.cs407.finalproject;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,7 +58,37 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
+
+        /*adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, R.id.textViewItem, displayList) {
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                // Use the correct inflater
+                View view = super.getView(position, convertView, parent);
+
+                // Customize the view if needed
+
+                return view;
+            }
+        }; */
+
         listViewResults.setAdapter(adapter);
+
+        // Set item click listener to open a new activity with the selected course URL
+        listViewResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //String selectedCourse = adapter.getItem(position);
+                if (position >= 0 && position < 5) {
+                    // Open a new activity and pass the selected course URL
+                    Intent intent = new Intent(MainActivity.this, ProfessorSelect.class);
+                    intent.putExtra("courseUrl", courseList.get(position).getUrl());
+                    startActivity(intent);
+                }
+            }
+        });
+
+
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
