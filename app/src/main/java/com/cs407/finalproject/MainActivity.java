@@ -2,6 +2,7 @@ package com.cs407.finalproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,45 +17,30 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText editTextSearch;
     private Button searchButton;
-    private ListView listViewResults;
-    private ArrayAdapter<String> adapter;
+
 
     private String api = "https://api.madgrades.com/v1/courses?query=";
-    private String[] data = {"Apple", "Banana", "Orange", "Mango", "Grapes"};
 
-    private String fetchURL(String urlString){
-        try {
-            java.net.URL url = new URL(urlString);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            try {
-                // Set the Authorization header
-                urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+    private ListView listViewResults;
+    private ArrayAdapter<String> adapter;
+    private List<String> displayList = new ArrayList<>();
+    private ArrayList<Course> courseList = new ArrayList<>();
 
-                InputStream in = urlConnection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder response = new StringBuilder();
-                String line;
 
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-
-                return response.toString();
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (IOException e) {
-            Log.e("HTTP Request", "Error: " + e.getMessage());
-            return null;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +52,98 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.Search);
 
         // Set up the adapter
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
         listViewResults.setAdapter(adapter);
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String output = fetchURL(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
-                Log.d("Website output",output);
+                new FetchDataTask(MainActivity.this, adapter, courseList).execute(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
             }
         });
+    }
+
+
+
+    private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
+
+        private WeakReference<MainActivity> activityReference;
+        private ArrayAdapter<String> adapter;
+        private ArrayList<Course> courses;
+
+        public FetchDataTask(MainActivity activity, ArrayAdapter<String> adapter, ArrayList<Course> courses) {
+            this.activityReference = new WeakReference<>(activity);
+            this.adapter = adapter;
+            this.courses = courses;
+        }
+
+        @Override
+        protected List<Course> doInBackground(String... params) {
+            return fetchURL(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(List<Course> result) {
+            MainActivity activity = activityReference.get();
+            if (activity != null) {
+                activity.adapter.clear();
+                for (Course course : result) {
+                    Log.d("Class Info", "Class Name: " + course.getName() + ", URL: " + course.getUrl());
+                    activity.adapter.add(course.getName());
+                }
+                activity.courseList.clear();
+                activity.courseList.addAll(result);
+
+            }
+        }
+
+        private List<Course> fetchURL(String urlString) {
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+                try {
+                    // Set the Authorization header
+                    urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+
+                    InputStream in = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+
+                    return parseJson(response.toString());
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (IOException e) {
+                Log.e("HTTP Request", "Error: " + e.getMessage());
+                return null;
+            }
+        }
+
+        private List<Course> parseJson(String json) {
+            List<Course> courses = new ArrayList<>();
+
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                JSONArray resultsArray = jsonObject.getJSONArray("results");
+
+                for (int i = 0; i < Math.min(5, resultsArray.length()); i++) {
+                    JSONObject courseObject = resultsArray.getJSONObject(i);
+                    String className = courseObject.getString("name");
+                    String classUrl = courseObject.getString("url");
+
+                    courses.add(new Course(className, classUrl));
+                }
+            } catch (JSONException e) {
+                Log.e("JSON Parsing", "Error: " + e.getMessage());
+            }
+
+            return courses;
+        }
     }
 }
