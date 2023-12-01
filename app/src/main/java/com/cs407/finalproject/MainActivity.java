@@ -59,14 +59,12 @@ public class MainActivity extends AppCompatActivity {
         // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
 
-
         listViewResults.setAdapter(adapter);
 
         // Set item click listener to open a new activity with the selected course URL
         listViewResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //String selectedCourse = adapter.getItem(position);
                 if (position >= 0 && position < 5) {
                     // Open a new activity and pass the selected course URL
                     Intent intent = new Intent(MainActivity.this, ProfessorSelect.class);
@@ -75,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override

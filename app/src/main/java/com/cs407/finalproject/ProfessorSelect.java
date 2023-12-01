@@ -7,8 +7,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,6 +70,9 @@ public class ProfessorSelect extends AppCompatActivity {
 
     private Button backButton;
     private Map<Integer, String> professorMap = new HashMap<>();
+    private ListView profList;
+    private ArrayAdapter<String> adapter;
+    private List<String> displayList = new ArrayList<>();
 
 
     @Override
@@ -78,11 +83,29 @@ public class ProfessorSelect extends AppCompatActivity {
         Intent intent = getIntent();
         String message = intent.getStringExtra("courseUrl");
 
+        profList = findViewById(R.id.professorList);
         backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfessorSelect.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
+
+        profList.setAdapter(adapter);
+
+        // Set item click listener to open a new activity with the selected course URL
+        profList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                // TODO: Open a new activity and pass the selected professor information
+                Intent intent = new Intent(ProfessorSelect.this, ProfessorSelect.class);
+                //intent.putExtra("profName", courseList.get(position).getUrl());
                 startActivity(intent);
             }
         });
@@ -116,13 +139,14 @@ public class ProfessorSelect extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Course> result) {
-            Map<Integer, String> pMap = activityReference.get().professorMap;
+            ProfessorSelect activity = activityReference.get();
+            Map<Integer, String> pMap = activity.professorMap;
             if (pMap != null) {
+                activity.adapter.clear();
                 for (Map.Entry<Integer, String> entry : pMap.entrySet()) {
-                    int instructorId = entry.getKey();
                     String professorName = entry.getValue();
 
-                    System.out.println("ID: " + instructorId + ", Name: " + professorName);
+                    activity.adapter.add(professorName);
                 }
             }
         }
