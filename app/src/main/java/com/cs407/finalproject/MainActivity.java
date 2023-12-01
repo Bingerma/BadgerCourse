@@ -59,18 +59,6 @@ public class MainActivity extends AppCompatActivity {
         // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
 
-        /*adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, R.id.textViewItem, displayList) {
-            @NonNull
-            @Override
-            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                // Use the correct inflater
-                View view = super.getView(position, convertView, parent);
-
-                // Customize the view if needed
-
-                return view;
-            }
-        }; */
 
         listViewResults.setAdapter(adapter);
 
@@ -93,23 +81,17 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new FetchDataTask(MainActivity.this, adapter, courseList).execute(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
+                new FetchDataTask(MainActivity.this).execute(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
             }
         });
     }
 
-
-
     private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
 
         private WeakReference<MainActivity> activityReference;
-        private ArrayAdapter<String> adapter;
-        private ArrayList<Course> courses;
 
-        public FetchDataTask(MainActivity activity, ArrayAdapter<String> adapter, ArrayList<Course> courses) {
+        public FetchDataTask(MainActivity activity) {
             this.activityReference = new WeakReference<>(activity);
-            this.adapter = adapter;
-            this.courses = courses;
         }
 
         @Override
@@ -181,4 +163,6 @@ public class MainActivity extends AppCompatActivity {
             return courses;
         }
     }
+
+
 }

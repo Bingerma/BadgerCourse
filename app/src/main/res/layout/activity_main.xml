@@ -10,9 +10,11 @@
         android:id="@+id/editTextSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search..."
+        android:layout_marginTop="44dp"
         android:focusableInTouchMode="true"
+        android:hint="Search..."
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -21,13 +23,12 @@
         android:layout_width="413dp"
         android:layout_height="323dp"
         android:layout_below="@id/editTextSearch"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="116dp"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/editTextSearch">
-
 
     </ListView>
 

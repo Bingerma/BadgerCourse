@@ -6,4 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".ProfessorSelect">
 
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="96dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="164dp"
+        android:layout_marginTop="576dp"
+        android:text="Back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/professorList"
+        android:layout_width="413dp"
+        android:layout_height="323dp"
+        android:layout_marginTop="174dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

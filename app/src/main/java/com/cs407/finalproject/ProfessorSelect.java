@@ -2,7 +2,29 @@ package com.cs407.finalproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ProfessorSelect extends AppCompatActivity {
     // Currently Empty - Will get passed the URL for a mad grades website
@@ -44,10 +66,130 @@ public class ProfessorSelect extends AppCompatActivity {
     // ->
     // https://madgrades.com/courses/3b14a2ff-b999-338f-b2a8-65b95ce52923
 
+    private Button backButton;
+    private Map<Integer, String> professorMap = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_professor_select);
+
+        Intent intent = getIntent();
+        String message = intent.getStringExtra("courseUrl");
+
+        backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfessorSelect.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        if (message != null) {
+            // Use the received message as needed
+            Log.d("ReceiverActivity", "Received message: " + message + "/grades");
+            new ProfessorSelect.FetchDataTask(ProfessorSelect.this).execute(message + "/grades");
+
+        } else {
+            Log.e("ReceiverActivity", "No message received");
+        }
+
     }
+
+
+
+    private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
+
+        private WeakReference<ProfessorSelect> activityReference;
+
+        public FetchDataTask(ProfessorSelect activity) {
+            this.activityReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected List<Course> doInBackground(String... params) {
+            fetchURL(params[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Course> result) {
+            Map<Integer, String> pMap = activityReference.get().professorMap;
+            if (pMap != null) {
+                for (Map.Entry<Integer, String> entry : pMap.entrySet()) {
+                    int instructorId = entry.getKey();
+                    String professorName = entry.getValue();
+
+                    System.out.println("ID: " + instructorId + ", Name: " + professorName);
+                }
+            }
+        }
+
+        private void fetchURL(String urlString) {
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                Log.e("HTTP Request", "Connected");
+
+                try {
+                    // Set the Authorization header
+                    urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+
+                    InputStream in = urlConnection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        Log.e("HTTP Request", line);
+                        response.append(line);
+                    }
+
+                    parseJson(response.toString());
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (IOException e) {
+                Log.e("HTTP Request", "Error: " + e.getMessage());
+            }
+        }
+
+        private void parseJson(String json) {
+            ProfessorSelect activity = activityReference.get();
+
+
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                JSONArray courseOfferingsArray = jsonObject.getJSONArray("courseOfferings");
+
+                for (int i = 0; i < courseOfferingsArray.length(); i++) {
+                    JSONObject courseOfferingObject = courseOfferingsArray.getJSONObject(i);
+                    JSONArray sectionsArray = courseOfferingObject.getJSONArray("sections");
+
+                    for (int j = 0; j < sectionsArray.length(); j++) {
+                        JSONObject sectionObject = sectionsArray.getJSONObject(j);
+                        JSONArray instructorsArray = sectionObject.getJSONArray("instructors");
+
+                        for (int k = 0; k < instructorsArray.length(); k++) {
+                            JSONObject instructorObject = instructorsArray.getJSONObject(k);
+                            String professorName = instructorObject.getString("name");
+
+                            if (professorName != "null"){
+                                int instructorId = instructorObject.getInt("id");
+                                activity.professorMap.put(instructorId, professorName);
+                                Log.e("Found Professor", professorName);
+                            }
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                Log.e("JSON Parsing", "Error: " + e.getMessage());
+            }
+
+        }
+
+    }
+
 }
