@@ -61,4 +61,15 @@
         app:layout_constraintBottom_toTopOf="@+id/button3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/eterm"
+        android:layout_width="204dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="TextView"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/term"
+        app:layout_constraintStart_toStartOf="@+id/term" />
 </androidx.constraintlayout.widget.ConstraintLayout>

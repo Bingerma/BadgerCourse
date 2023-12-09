@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,8 @@ public class scheduleActivity extends AppCompatActivity {
     private int noteId=-1;
     EditText editText;
     EditText editTextt;
+
+    TextView textViewt;
     Button back;
     static ArrayList<schedule> notes1;
     @Override
@@ -30,6 +33,7 @@ public class scheduleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_schedule);
         editText=(EditText) findViewById(R.id.editTextText3);
         editTextt=(EditText) findViewById(R.id.term);
+        textViewt=(TextView) findViewById(R.id.eterm);
         Intent intent = getIntent();
         Integer noteId = intent.getIntExtra("noteId",-1);
         if(noteId!=-1){
@@ -38,6 +42,11 @@ public class scheduleActivity extends AppCompatActivity {
             String noteTerm=note.getTerm();
             editText.setText(noteContent);
             editTextt.setText(noteTerm);
+            editTextt.setVisibility(View.INVISIBLE);
+            textViewt.setVisibility(View.VISIBLE);
+            textViewt.setText(noteTerm);
+        }else {
+            textViewt.setVisibility(View.INVISIBLE);
         }
         Button saveButton=findViewById(R.id.button2);
         saveButton.setOnClickListener(new View.OnClickListener() {
