@@ -102,10 +102,10 @@ public class ProfessorSelect extends AppCompatActivity {
         profList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                // TODO: Open a new activity and pass the selected professor information
-                Intent intent = new Intent(ProfessorSelect.this, ProfessorSelect.class);
-                //intent.putExtra("profName", courseList.get(position).getUrl());
+                String selectedProfessorName = displayList.get(position);
+                Intent intent = new Intent(ProfessorSelect.this, ProfessorDetails.class);
+                intent.putExtra("courseUrl", message);
+                intent.putExtra("selectedProfessorName", selectedProfessorName);
                 startActivity(intent);
             }
         });

@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText editTextSearch;
     private Button searchButton;
+    private Button testButton;
 
 
     private String api = "https://api.madgrades.com/v1/courses?query=";
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         editTextSearch = findViewById(R.id.editTextSearch);
         listViewResults = findViewById(R.id.listViewResults);
         searchButton = findViewById(R.id.Search);
+        testButton = findViewById(R.id.testButton);
+
 
         // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < 5) {
                     // Open a new activity and pass the selected course URL
+//                    Intent intent = new Intent(MainActivity.this, ProfessorDetails.class);
                     Intent intent = new Intent(MainActivity.this, ProfessorSelect.class);
                     intent.putExtra("courseUrl", courseList.get(position).getUrl());
                     startActivity(intent);
@@ -78,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 new FetchDataTask(MainActivity.this).execute(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
+            }
+        });
+
+        testButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(MainActivity.this, ProfessorDetails.class);
+                startActivity(intent);
             }
         });
     }
@@ -127,8 +139,24 @@ public class MainActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
+                    Log.d("MyAppLog", response.toString());
+                    try{
+                        JSONObject jsonObject = new JSONObject(response.toString());
+                        int totalPages = jsonObject.getInt("totalPages");
+                        if (totalPages > 0){
+                            return parseJson(response.toString());
+                        }
+                        else{
+                            List<Course> emptyList = new ArrayList<>();
+                            emptyList.add(new Course("No matching results", "NA"));
+                            return emptyList;
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                    return null;
 
-                    return parseJson(response.toString());
+
                 } finally {
                     urlConnection.disconnect();
                 }
