@@ -15,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
@@ -22,6 +23,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 class GradeCounts {
     int aCount, abCount, bCount, bcCount, cCount, dCount, fCount, sCount, uCount, crCount, nCount, pCount, iCount, nwCount, nrCount, otherCount;
@@ -51,10 +58,11 @@ class GradeCounts {
 
 
 public class ProfessorDetails extends AppCompatActivity {
-
+    BarChart barChart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Map<String, GradeCounts> instructorGradeMap = new HashMap<>();
+
 
 
         super.onCreate(savedInstanceState);
@@ -123,6 +131,30 @@ public class ProfessorDetails extends AppCompatActivity {
                                                             "F Cont: " + selectedProfGradeCounts.fCount + ", "
                                                             ;
                                                     textView.setText(displayText);
+                                                    barChart = findViewById(R.id.barChart);
+                                                    ArrayList<BarEntry> entries = new ArrayList<>();
+                                                    entries.add(new BarEntry(0f, selectedProfGradeCounts.aCount));
+                                                    entries.add(new BarEntry(1f, selectedProfGradeCounts.abCount));
+                                                    entries.add(new BarEntry(2f, selectedProfGradeCounts.bCount));
+                                                    entries.add(new BarEntry(3f, selectedProfGradeCounts.bcCount));
+                                                    entries.add(new BarEntry(4f, selectedProfGradeCounts.cCount));
+                                                    entries.add(new BarEntry(5f, selectedProfGradeCounts.dCount));
+                                                    entries.add(new BarEntry(6f, selectedProfGradeCounts.fCount));
+                                                    BarDataSet barDataSet = new BarDataSet(entries, "Label");
+                                                    BarData barData = new BarData(barDataSet);
+                                                    barChart.setData(barData);
+
+                                                    String[] labels = new String[] {"A", "AB", "B", "BC", "C", "D", "F"};
+
+// Customizing X-axis
+                                                    XAxis xAxis = barChart.getXAxis();
+                                                    xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+                                                    xAxis.setGranularity(1f);
+                                                    xAxis.setGranularityEnabled(true);
+                                                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // Labels at the bottom
+                                                    xAxis.setDrawGridLines(false);
+
+                                                    barChart.invalidate();
                                                 }
                                             }catch (JSONException error){
                                                 throw new RuntimeException(error);
