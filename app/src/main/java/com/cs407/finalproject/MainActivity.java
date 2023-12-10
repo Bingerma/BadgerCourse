@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -40,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private String api = "https://api.madgrades.com/v1/courses?query=";
-
     private ListView listViewResults;
     private ArrayAdapter<String> adapter;
     private List<String> displayList = new ArrayList<>();
@@ -92,6 +94,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.example_menu,menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.add) {
+            Intent intent = new Intent(this, scheduleViewActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
