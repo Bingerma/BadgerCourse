@@ -81,7 +81,6 @@ public class ProfessorDetails extends AppCompatActivity {
                             String gradeUrl = jsonObject.getString("gradesUrl");
                             Log.d("MyAppLog", gradeUrl);
 
-                            // Second API call is made here, inside the response listener of the first call
                             StringRequest getGrades = new StringRequest(Request.Method.GET, gradeUrl,
                                     new Response.Listener<String>() {
                                         @Override
@@ -143,8 +142,6 @@ public class ProfessorDetails extends AppCompatActivity {
                                                     barChart.setData(barData);
 
                                                     String[] labels = new String[] {"A", "AB", "B", "BC", "C", "D", "F"};
-
-// Customizing X-axis
                                                     XAxis xAxis = barChart.getXAxis();
                                                     xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
                                                     xAxis.setGranularity(1f);

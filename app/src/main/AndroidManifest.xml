@@ -40,6 +40,7 @@
         <activity
             android:name=".courseCardList"
             android:exported="true" />
+        <activity android:name=".professorCardList" android:exported="true"/>
 
     </application>
 

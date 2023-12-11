@@ -88,13 +88,14 @@ public class ProfessorSelect extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ProfessorSelect.this, MainActivity.class);
+                Intent intent = new Intent(ProfessorSelect.this, courseCardList.class);
                 startActivity(intent);
             }
         });
 
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
+        Log.d("testlog", displayList.toString());
 
         profList.setAdapter(adapter);
 
