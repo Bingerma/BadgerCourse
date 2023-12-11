@@ -61,13 +61,6 @@ public class ProfessorSelect extends AppCompatActivity {
     // "total":196,"aCount":52,"abCount":62,"bCount":47,"bcCount":33,"cCount":0,"dCount":2,"fCount":0,"sCount":0,"uCount":0,"crCount":0,"nCount":0,"pCount":0,"iCount":0,"nwCount":0,"nrCount":0,"otherCount":0}]},
 
 
-
-    // Note: If it seems easier to parse the default webpage, we can switch to the normal webpage
-    // by removing the api. and the v1/
-    // https://api.madgrades.com/v1/courses/3b14a2ff-b999-338f-b2a8-65b95ce52923
-    // ->
-    // https://madgrades.com/courses/3b14a2ff-b999-338f-b2a8-65b95ce52923
-
     private Button backButton;
     private Map<Integer, String> professorMap = new HashMap<>();
     private ListView profList;
