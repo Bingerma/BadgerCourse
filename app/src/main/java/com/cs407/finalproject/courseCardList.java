@@ -14,11 +14,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class courseCardList extends AppCompatActivity {
 
@@ -33,11 +43,7 @@ public class courseCardList extends AppCompatActivity {
         Intent intent = getIntent();
         String userInput = intent.getStringExtra("userInput");
 
-        {
-            String api = "https://api.madgrades.com/v1/courses?query=" + userInput;
-            Log.d("testlog", api);
 
-        }
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -45,12 +51,54 @@ public class courseCardList extends AppCompatActivity {
         // Initialize cardItemList and populate it with data
         cardItemList = new ArrayList<>();
 
-        // TODO: Fetch data and populate the list
-        cardItemList.add(new CardItem("Card Title 1", "This is the content for Card 1."));
-        cardItemList.add(new CardItem("Card Title 2", "This is the content for Card 2."));
-        cardItemList.add(new CardItem("Card Title 3", "This is the content for Card 3."));
-        cardItemList.add(new CardItem("Card Title 4", "This is the content for Card 4."));
-        cardItemList.add(new CardItem("Card Title 5", "This is the content for Card 5."));
+//        cardItemList.add(new CardItem("Card Title 1", "This is the content for Card 1."));
+//        cardItemList.add(new CardItem("Card Title 2", "This is the content for Card 2."));
+        {
+//            cardItemList.add(new CardItem("Card Title 1", "This is the content for Card 1."));
+//            cardItemList.add(new CardItem("Card Title 2", "This is the content for Card 2."));
+            String api = "https://api.madgrades.com/v1/courses?query=" + userInput;
+            RequestQueue queue = Volley.newRequestQueue(this);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, api,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                JSONArray results = jsonObject.getJSONArray("results");
+                                cardItemList.clear(); // Clear existing data
+                                for (int i = 0; i < results.length(); i++) {
+                                    JSONObject result = results.getJSONObject(i);
+                                    String courseName = result.getString("name");
+                                    int code = result.getInt("number");
+
+
+//                                    String code = result.getJSONArray("subjects").getJSONObject(0).getString("code");
+                                    String abrv = result.getJSONArray("subjects").getJSONObject(0).getString("abbreviation");
+                                    String courseNameShort = abrv + " " + String.valueOf(code);
+                                    cardItemList.add(new CardItem(courseNameShort, courseName));
+                                }
+                                adapter.notifyDataSetChanged(); // Notify adapter about data change
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // Handle error
+                    Log.d("Error.Response", error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+                    return headers;
+                }
+            };
+            queue.add(stringRequest);
+        }
 
 
         adapter = new CardAdapter(cardItemList);
