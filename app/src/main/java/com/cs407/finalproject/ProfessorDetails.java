@@ -55,8 +55,6 @@ class GradeCounts {
     }
 }
 
-
-
 public class ProfessorDetails extends AppCompatActivity {
     BarChart barChart;
     @Override

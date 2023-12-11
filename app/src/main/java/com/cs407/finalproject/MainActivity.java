@@ -39,9 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText editTextSearch;
     private Button searchButton;
-    private Button testButton;
-
-
     private String api = "https://api.madgrades.com/v1/courses?query=";
     private ListView listViewResults;
     private ArrayAdapter<String> adapter;
@@ -58,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         editTextSearch = findViewById(R.id.editTextSearch);
         listViewResults = findViewById(R.id.listViewResults);
         searchButton = findViewById(R.id.Search);
-        testButton = findViewById(R.id.testButton);
 
 
         // Set up the adapter
@@ -82,16 +78,11 @@ public class MainActivity extends AppCompatActivity {
 
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                new FetchDataTask(MainActivity.this).execute(api + editTextSearch.getText().toString().replaceAll("\\s", ""));
-            }
-        });
-
-        testButton.setOnClickListener(new View.OnClickListener(){
-            @Override
             public void onClick(View v){
-                Intent intent = new Intent(MainActivity.this, ProfessorDetails.class);
+                Intent intent = new Intent(MainActivity.this, courseCardList.class);
+                intent.putExtra("userInput", editTextSearch.getText().toString());
                 startActivity(intent);
+
             }
         });
     }
@@ -112,100 +103,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
-
-        private WeakReference<MainActivity> activityReference;
-
-        public FetchDataTask(MainActivity activity) {
-            this.activityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected List<Course> doInBackground(String... params) {
-            return fetchURL(params[0]);
-        }
-
-        @Override
-        protected void onPostExecute(List<Course> result) {
-            MainActivity activity = activityReference.get();
-            if (activity != null) {
-                activity.adapter.clear();
-                for (Course course : result) {
-                    Log.d("Class Info", "Class Name: " + course.getName() + ", URL: " + course.getUrl());
-                    activity.adapter.add(course.getName());
-                }
-                activity.courseList.clear();
-                activity.courseList.addAll(result);
-
-            }
-        }
-
-        private List<Course> fetchURL(String urlString) {
-            try {
-                URL url = new URL(urlString);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-                try {
-                    // Set the Authorization header
-                    urlConnection.setRequestProperty("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
-
-                    InputStream in = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    Log.d("MyAppLog", response.toString());
-                    try{
-                        JSONObject jsonObject = new JSONObject(response.toString());
-                        int totalPages = jsonObject.getInt("totalPages");
-                        if (totalPages > 0){
-                            return parseJson(response.toString());
-                        }
-                        else{
-                            List<Course> emptyList = new ArrayList<>();
-                            emptyList.add(new Course("No matching results", "NA"));
-                            return emptyList;
-                        }
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                    return null;
-
-
-                } finally {
-                    urlConnection.disconnect();
-                }
-            } catch (IOException e) {
-                Log.e("HTTP Request", "Error: " + e.getMessage());
-                return null;
-            }
-        }
-
-        private List<Course> parseJson(String json) {
-            List<Course> courses = new ArrayList<>();
-
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                JSONArray resultsArray = jsonObject.getJSONArray("results");
-
-                for (int i = 0; i < Math.min(5, resultsArray.length()); i++) {
-                    JSONObject courseObject = resultsArray.getJSONObject(i);
-                    String className = courseObject.getString("name");
-                    String classUrl = courseObject.getString("url");
-
-                    courses.add(new Course(className, classUrl));
-                }
-            } catch (JSONException e) {
-                Log.e("JSON Parsing", "Error: " + e.getMessage());
-            }
-
-            return courses;
-        }
-    }
-
 
 }

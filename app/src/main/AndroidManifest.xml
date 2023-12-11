@@ -31,13 +31,15 @@
         </activity>
         <activity
             android:name=".ProfessorSelect"
-
             android:exported="true">
         </activity>
         <activity
             android:name=".ProfessorDetails"
             android:exported="true">
         </activity>
+        <activity
+            android:name=".courseCardList"
+            android:exported="true" />
 
     </application>
 
