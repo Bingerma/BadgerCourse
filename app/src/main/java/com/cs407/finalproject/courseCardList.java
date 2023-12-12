@@ -122,7 +122,7 @@ public class courseCardList extends AppCompatActivity {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 JSONArray results = jsonObject.getJSONArray("results");
-                                cardItemList.clear(); // Clear existing data
+                                cardItemList.clear();
                                 for (int i = 0; i < results.length(); i++) {
                                     JSONObject result = results.getJSONObject(i);
                                     String courseName = result.getString("name");
@@ -130,10 +130,9 @@ public class courseCardList extends AppCompatActivity {
                                     String abrv = result.getJSONArray("subjects").getJSONObject(0).getString("abbreviation");
                                     String courseNameShort = abrv + " " + String.valueOf(code);
                                     String urlPage = result.getString("url");
-                                    Log.d("testlog", urlPage);
                                     cardItemList.add(new CardItem(courseNameShort, courseName, urlPage));
                                 }
-                                adapter.notifyDataSetChanged(); // Notify adapter about data change
+                                adapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 throw new RuntimeException(e);
                             }

@@ -1,18 +1,24 @@
 package com.cs407.finalproject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -32,6 +38,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,9 +53,95 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.w3c.dom.Text;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+class CardItem {
+    private String leftText;
+    private String rightText;
+    private float colorValue;
+
+    public CardItem(String leftText, String rightText, float colorValue) {
+        this.leftText = leftText;
+        this.rightText = rightText;
+        this.colorValue = colorValue;
+    }
+
+    // getters and setters
+    public String getLeftText() {
+        return leftText;
+    }
+
+    public String getRightText() {
+        return rightText;
+    }
+    public float getColorValue() {
+        return colorValue;
+    }
+}
+
+class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
+
+    private List<CardItem> cardList;
+
+    public CardAdapter(List<CardItem> cardList) {
+        this.cardList = cardList;
+    }
+
+    @NonNull
+    @Override
+    public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.card_item, parent, false);
+        return new CardViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
+        CardItem item = cardList.get(position);
+        holder.leftText.setText(item.getLeftText());
+        holder.rightText.setText(item.getRightText());
+
+        // Set the background color of rightText
+        int color = interpolateColor(item.getColorValue());
+        holder.rightText.setBackgroundColor(color);
+    }
+
+    private int interpolateColor(float value) {
+        float[] from = new float[3];
+        float[] to = new float[3];
+        float[] result = new float[3];
+
+        Color.colorToHSV(Color.RED, from);   // from red
+        Color.colorToHSV(Color.GREEN, to);   // to green
+
+        for (int i = 0; i < 3; i++) {
+            result[i] = from[i] + (to[i] - from[i]) * value / 5f; // Interpolating
+        }
+
+        return Color.HSVToColor(result);
+    }
+
+    @Override
+    public int getItemCount() {
+        return cardList.size();
+    }
+
+    static class CardViewHolder extends RecyclerView.ViewHolder {
+        TextView leftText, rightText;
+
+        public CardViewHolder(View view) {
+            super(view);
+            leftText = view.findViewById(R.id.left_text);
+            rightText = view.findViewById(R.id.right_text);
+        }
+    }
+}
 
 class GradeCounts {
     int aCount, abCount, bCount, bcCount, cCount, dCount, fCount, sCount, uCount, crCount, nCount, pCount, iCount, nwCount, nrCount, otherCount;
@@ -75,17 +168,159 @@ class GradeCounts {
     }
 }
 
+
+
+class FetchData extends AsyncTask<String, Void, ArrayList<String>> {
+
+
+    private WeakReference<ProfessorDetails> activityReference;
+    ArrayList<String> rmpDataArray = new ArrayList<>();
+    String data = "";
+    private int interpolateColor(float value) {
+        float[] from = new float[3];
+        float[] to = new float[3];
+        float[] result = new float[3];
+
+        Color.colorToHSV(Color.RED, from);   // from red
+        Color.colorToHSV(Color.GREEN, to);   // to green
+
+        for (int i = 0; i < 3; i++) {
+            result[i] = from[i] + (to[i] - from[i]) * value / 5f; // Interpolating
+        }
+
+        return Color.HSVToColor(result);
+    }
+
+    private void updateNumberBox(float number, TextView textView) {
+        textView.setText(String.format(Locale.getDefault(), "%.1f", number));
+        int color = interpolateColor(number);
+        textView.setBackgroundColor(color);
+    }
+
+
+
+    public FetchData(ProfessorDetails activity) {
+        this.activityReference = new WeakReference<>(activity);
+    }
+    @Override
+    protected ArrayList<String> doInBackground(String... params) {
+        try {
+            // URL of the web page
+            String url = "https://www.ratemyprofessors.com/search/professors/18418?q=";
+            String profName = params[0];
+            url += profName;
+            Document doc = Jsoup.connect(url).get();
+
+            String htmlStr = doc.toString();
+            int startIndex = htmlStr.indexOf("avgRating");
+            if (startIndex != -1) {
+                int endIndex = htmlStr.indexOf(",", startIndex);
+                String value = htmlStr.substring((startIndex - 2) + "averageRating".length(), endIndex).trim();
+                rmpDataArray.add(value);
+            } else {
+                rmpDataArray.add("0");
+            }
+
+            startIndex = htmlStr.indexOf("numRatings");
+            if (startIndex != -1){
+                int endIndex = htmlStr.indexOf(",", startIndex);
+                String value = htmlStr.substring((startIndex) + "numRatings".length() + 2, endIndex).trim();
+                rmpDataArray.add(value);
+            } else {
+                rmpDataArray.add("0");
+            }
+
+            startIndex = htmlStr.indexOf("wouldTakeAgainPercent");
+            if (startIndex != -1){
+                int endIndex = htmlStr.indexOf(",", startIndex);
+                String value = htmlStr.substring((startIndex) + "wouldTakeAgainPercent".length() + 2, endIndex).trim();
+                rmpDataArray.add(value);
+            } else {
+                rmpDataArray.add("0");
+            }
+
+            startIndex = htmlStr.indexOf("avgDifficulty");
+            if (startIndex != -1){
+                int endIndex = htmlStr.indexOf(",", startIndex);
+                String value = htmlStr.substring((startIndex) + "avgDifficulty".length() + 2, endIndex).trim();
+                rmpDataArray.add(value);
+            } else {
+                rmpDataArray.add("0");
+            }
+            Log.d("testlog", rmpDataArray.toString());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rmpDataArray;
+    }
+
+    @Override
+    protected void onPostExecute(ArrayList<String> result) {
+        ProfessorDetails activity = activityReference.get();
+        if (activity != null && result != null) {
+            activity.updateUIWithResults(result);
+        }
+    }
+}
+
+
 public class ProfessorDetails extends AppCompatActivity {
     BarChart barChart;
     private Button backButton;
     private Map<String, String> redditMap = new HashMap<>();
-    private ListView redditList;
+//    private ListView redditList;
     private ArrayAdapter<String> adapter;
     private List<String> displayList = new ArrayList<>();
 
-    String redditURL = "https://www.reddit.com/r/UWMadison/search/?q=";
+    public void updateUIWithResults(ArrayList<String> results) {
+        List<CardItem> items = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        names.add("Average Rating: ");
+        names.add("Number of Ratings");
+        names.add("Would Take Again (%): ");
+        names.add("Difficulty ");
+        int counter = 0;
+        for (String result : results) {
+            float colorValue = Float.parseFloat(result);
+            if (counter == 2){
+                colorValue = colorValue / 10;
+                colorValue = colorValue / 2;
+            }
+            if (counter == 1){
+                if (colorValue < 5){
+                    colorValue = 1;
+                }
+                else if (colorValue > 5 && colorValue < 10){
+                    colorValue = 2;
+                }
+                else if (colorValue > 10 && colorValue < 15){
+                    colorValue = 3;
+                }
+                else if (colorValue > 15 && colorValue < 20){
+                    colorValue = 4;
+                }
+                else if (colorValue > 20){
+                    colorValue = 5;
+                }
+            }
+            if (counter == 3){
+                colorValue = 5 - colorValue;
+            }
+            items.add(new CardItem(names.get(counter), result, colorValue));
+            counter++;
+        }
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        CardAdapter adapter = new CardAdapter(items);
+        recyclerView.setAdapter(adapter);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         Map<String, GradeCounts> instructorGradeMap = new HashMap<>();
 
         super.onCreate(savedInstanceState);
@@ -94,7 +329,8 @@ public class ProfessorDetails extends AppCompatActivity {
         String apiUrl = intent.getStringExtra("courseUrl");
         String selectedProfessor = intent.getStringExtra("selectedProfessorName");
 
-        redditList = findViewById(R.id.redditList);
+
+//        redditList = findViewById(R.id.redditList);
         backButton = findViewById(R.id.backDetails);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +350,6 @@ public class ProfessorDetails extends AppCompatActivity {
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             String gradeUrl = jsonObject.getString("gradesUrl");
-                            Log.d("MyAppLog", gradeUrl);
 
                             StringRequest getGrades = new StringRequest(Request.Method.GET, gradeUrl,
                                     new Response.Listener<String>() {
@@ -152,6 +387,7 @@ public class ProfessorDetails extends AppCompatActivity {
                                                                     "A Count: " + selectedProfGradeCounts.aCount + ", " +
                                                                     "AB Count: " + selectedProfGradeCounts.abCount + ", "
                                                     );
+                                                    //TODO: consider removing
                                                     TextView textView = findViewById(R.id.textView);
                                                     String displayText = "Grades for " + selectedProfessor + ": " +
                                                             "A Count: " + selectedProfGradeCounts.aCount + ", " +
@@ -228,117 +464,19 @@ public class ProfessorDetails extends AppCompatActivity {
 
         queue.add(getGradeUrl);
 
+        new FetchData(this).execute(selectedProfessor);
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
-
-        redditList.setAdapter(adapter);
-
-        // Set item click listener to open a new activity with the selected course URL
-        redditList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) { // TODO: Open reddit url in default browser
-                String redditLink = redditMap.get(displayList.get(position));
-                // Create an Intent to open the URL in the default browser
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(redditLink));
-                startActivity(browserIntent);
-            }
-        });
-
-        if (selectedProfessor != null) {
-            // Use the received message as needed
-            Log.d("ReceiverActivity", "Received message: " + apiUrl + " " + selectedProfessor);
-            new ProfessorDetails.FetchDataTask(ProfessorDetails.this).execute(redditURL + selectedProfessor);
-
-        } else {
-            Log.e("ReceiverActivity", "No message received");
-        }
-
-    }
+//        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//
+//        List<CardItem> items = new ArrayList<>();
+//        items.add(new CardItem("Left Text 1", "Right Text 1"));
+//        items.add(new CardItem("Left Text 2", "Right Text 2"));
+//
+//        CardAdapter adapter = new CardAdapter(items);
+//        recyclerView.setAdapter(adapter);
 
 
-    private static class FetchDataTask extends AsyncTask<String, Void, List<Course>> {
-
-        private WeakReference<ProfessorDetails> activityReference;
-
-        public FetchDataTask(ProfessorDetails activity) {
-            this.activityReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        protected List<Course> doInBackground(String... params) {
-            fetchURL(params[0]);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<Course> result) {
-            ProfessorDetails activity = activityReference.get();
-            Map<String, String> rMap = activity.redditMap;
-            if (rMap != null) {
-                activity.adapter.clear();
-                for (Map.Entry<String, String> entry : rMap.entrySet()) {
-                    String title = entry.getKey();
-                    activity.adapter.add(title);
-                }
-            }
-        }
-
-        private void fetchURL(String urlString) {
-            try {
-                URL url = new URL(urlString);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                Log.e("HTTP Request", "Connected");
-
-                try {
-
-                    InputStream in = urlConnection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder response = new StringBuilder();
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        //Log.d("HTTP Request", line);
-                        response.append(line);
-                    }
-
-                    parsePage(response.toString());
-                } finally {
-                    urlConnection.disconnect();
-                }
-            } catch (IOException e) {
-                Log.e("HTTP Request", "Error: " + e.getMessage());
-            } catch (XmlPullParserException e){
-                Log.e("HTTP Parse", "Error: " + e.getMessage());
-            }
-        }
-
-
-        private void parsePage(String html) throws XmlPullParserException, IOException {
-            ProfessorDetails activity = activityReference.get();
-            Log.d("jkdn","factory");
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            Log.d("jkdn","pullp");
-            XmlPullParser parser = factory.newPullParser();
-            Log.d("jkdn","reader");
-            parser.setInput(new java.io.StringReader(html));
-            int eventType = parser.getEventType();
-
-            int count = 0;
-            while (eventType != XmlPullParser.END_DOCUMENT && count < 3) {
-                if (eventType == XmlPullParser.START_TAG && "a".equals(parser.getName())) {
-                    // Assuming the desired links have the "data-testid" attribute
-                    String dataTestId = parser.getAttributeValue(null, "data-testid");
-                    Log.d("parser","found match");
-                    if (dataTestId != null && "post-title".equals(dataTestId)) {
-                        String href = parser.getAttributeValue(null, "href");
-                        String ariaLabel = parser.getAttributeValue(null, "aria-label");
-                        activity.redditMap.put(ariaLabel,href);
-                        count++;
-                    }
-                }
-                eventType = parser.next();
-            }
-        }
     }
 }
 
