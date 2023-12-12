@@ -5,10 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -62,7 +60,11 @@ public class scheduleViewActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
-
+        else if (itemId==R.id.notification){
+            Intent intent = new Intent(this, setNotification.class);
+            startActivity(intent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
     public void backFunction(View view){
