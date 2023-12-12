@@ -106,9 +106,11 @@ public class professorCardList extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent1 = new Intent(professorCardList.this, courseCardList.class);
+                intent1.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); // Correct Intent object
                 startActivity(intent1);
             }
         });
+
 
         recyclerView = findViewById(R.id.recyclerViewPf);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
