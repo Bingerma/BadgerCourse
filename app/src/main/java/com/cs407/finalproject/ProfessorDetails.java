@@ -99,7 +99,8 @@ public class ProfessorDetails extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ProfessorDetails.this, MainActivity.class);
+                Intent intent = new Intent(ProfessorDetails.this, professorCardList.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
         });
