@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Final Project</string>
+    <string name="app_name">BadgerCourse</string>
     <string name="please_allow">Please allow all notifications to continue!</string>
     <string name="reminder">Reminder to search for courses!</string>
     <string name="please_select">Please select a date and time to continue!</string>
