@@ -1,5 +1,7 @@
 package com.cs407.finalproject;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,21 +32,18 @@ import java.util.List;
 import java.util.Map;
 
 public class professorCardList extends AppCompatActivity {
-
+    private Button backButton;
     private RecyclerView recyclerView;
     private CardAdapter adapter;
     private List<CardItem> cardItemList;
-    Button backButton;
-
+    private String courseUrl;
+    private String apiEndpoint;
     public static class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
         private final List<CardItem> cardItemList;
-
         public CardAdapter(List<CardItem> cardItemList) {
             this.cardItemList = cardItemList;
         }
-
         private OnCardClickListener onCardClickListener;
-
         public CardAdapter(List<CardItem> cardItemList, OnCardClickListener onCardClickListener) {
             this.cardItemList = cardItemList;
             this.onCardClickListener = onCardClickListener;
@@ -96,98 +95,139 @@ public class professorCardList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_professor_card_list);
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        boolean folded = isDeviceFolded(configuration);
+        if (folded) {
+            setContentView(R.layout.activity_professor_card_list);
+        } else {
+            setContentView(R.layout.activity_professor_card_list_unfolded);
+        }
+
+
+        initializeFields();
+        setupBackButtonListener();
+        setupRecyclerView();
+        fetchDataFromApi();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean isFolded = isDeviceFolded(newConfig);
+
+        if (isFolded) {
+            setContentView(R.layout.activity_professor_card_list);
+        } else {
+            setContentView(R.layout.activity_professor_card_list_unfolded);
+        }
+        reinitializeComponents();
+    }
+
+    private boolean isDeviceFolded(Configuration config) {
+        float aspectRatio = (float) config.screenWidthDp / config.screenHeightDp;
+        return aspectRatio < 0.68;
+    }
+
+    private void reinitializeComponents() {
+        initializeFields();
+        setupBackButtonListener();
+        setupRecyclerView();
+        fetchDataFromApi();
+    }
+
+    private void initializeFields() {
         Intent intent = getIntent();
-        String message = intent.getStringExtra("courseUrl");
-        String api = intent.getStringExtra("courseUrl") + "/grades";
+        courseUrl = intent.getStringExtra("courseUrl");
+        apiEndpoint = courseUrl + "/grades";
 
         backButton = findViewById(R.id.buttonPf);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(professorCardList.this, courseCardList.class);
-                intent1.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT); // Correct Intent object
-                startActivity(intent1);
-            }
-        });
-
-
         recyclerView = findViewById(R.id.recyclerViewPf);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Initialize cardItemList and populate it with data
         cardItemList = new ArrayList<>();
-        {
+    }
 
-            RequestQueue queue = Volley.newRequestQueue(this);
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, api,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            ArrayList<String> profNameHolder = new ArrayList<>();
-                            try{
-                                JSONObject jsonObject1 = new JSONObject(response);
-                                JSONArray courseOfferings = jsonObject1.getJSONArray("courseOfferings");
-                                for (int i = 0; i < courseOfferings.length(); i++) {
-                                    JSONObject courseOffering = courseOfferings.getJSONObject(i);
-                                    JSONArray sections = courseOffering.getJSONArray("sections");
-                                    for (int j = 0; j < sections.length(); j++) {
-                                        JSONObject section = sections.getJSONObject(j);
-                                        JSONArray instructors = section.getJSONArray("instructors");
+    private void setupBackButtonListener() {
+        backButton.setOnClickListener(v -> navigateToCourseCardList());
+    }
 
-                                        for (int k = 0; k < instructors.length(); k++) {
-                                            JSONObject instructor = instructors.getJSONObject(k);
-                                            String instructorName = instructor.getString("name");
-                                            if (!(profNameHolder.contains(instructorName))){
-                                                profNameHolder.add(instructorName);
-                                            }
-                                        }
-                                    }
-                                }
-                                for (int i = 0; i < profNameHolder.size(); i++){
-                                    cardItemList.add(new CardItem(profNameHolder.get(i), profNameHolder.get(i), message, profNameHolder.get(i)));
-//                                    Log.d("testlog", profNameHolder.get(i));
-                                }
-                                adapter.notifyDataSetChanged();
-                            }catch (JSONException error){
-                                throw new RuntimeException(error);
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("Error.Response", error.toString());
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<String, String>();
-                    headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
-                    return headers;
-                }
-            };
-            queue.add(stringRequest);
-        }
-        adapter = new CardAdapter(cardItemList, new CardAdapter.OnCardClickListener() {
-            @Override
-            public void onCardClick(int position) {
-                Intent intent = new Intent(professorCardList.this, ProfessorDetails.class);
-                CardItem clickedItem = cardItemList.get(position);
-                intent.putExtra("courseUrl", clickedItem.url);
-                intent.putExtra("selectedProfessorName", clickedItem.selectedProfName);
-                startActivity(intent);
-            }
-        });
+    private void navigateToCourseCardList() {
+        Intent intent = new Intent(professorCardList.this, courseCardList.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new CardAdapter(cardItemList, this::onCardClick);
         recyclerView.setAdapter(adapter);
     }
 
-    public void updateData(List<CardItem> newData) {
-        cardItemList.clear();
-        cardItemList.addAll(newData);
+    private void onCardClick(int position) {
+        Intent intent = new Intent(professorCardList.this, ProfessorDetails.class);
+        CardItem clickedItem = cardItemList.get(position);
+        intent.putExtra("courseUrl", clickedItem.getUrl());
+        intent.putExtra("selectedProfessorName", clickedItem.getSelectedProfName());
+        startActivity(intent);
+    }
+
+    private void fetchDataFromApi() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, apiEndpoint,
+                this::onApiResponse, this::onApiErrorResponse) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+                return headers;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    private void onApiResponse(String response) {
+        try {
+            processApiResponse(response);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void processApiResponse(String response) throws JSONException {
+        ArrayList<String> profNameHolder = new ArrayList<>();
+        JSONObject jsonObject = new JSONObject(response);
+        JSONArray courseOfferings = jsonObject.getJSONArray("courseOfferings");
+        extractInstructorNames(profNameHolder, courseOfferings);
+        populateCardItemList(profNameHolder);
         adapter.notifyDataSetChanged();
     }
 
+    private void extractInstructorNames(ArrayList<String> profNameHolder, JSONArray courseOfferings) throws JSONException {
+        for (int i = 0; i < courseOfferings.length(); i++) {
+            JSONObject courseOffering = courseOfferings.getJSONObject(i);
+            JSONArray sections = courseOffering.getJSONArray("sections");
+            for (int j = 0; j < sections.length(); j++) {
+                JSONObject section = sections.getJSONObject(j);
+                JSONArray instructors = section.getJSONArray("instructors");
+                for (int k = 0; k < instructors.length(); k++) {
+                    String instructorName = instructors.getJSONObject(k).getString("name");
+                    if (!profNameHolder.contains(instructorName)) {
+                        profNameHolder.add(instructorName);
+                    }
+                }
+            }
+        }
+    }
+
+    private void populateCardItemList(ArrayList<String> profNameHolder) {
+        for (String name : profNameHolder) {
+            cardItemList.add(new CardItem(name, name, courseUrl, name));
+        }
+    }
+
+    private void onApiErrorResponse(VolleyError error) {
+        Log.d("Error.Response", error.toString());
+    }
     public static class CardItem {
         private final String title;
         private final String content;

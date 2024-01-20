@@ -43,10 +43,14 @@
         </activity>
         <activity
             android:name=".courseCardList"
-            android:exported="true" />
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize"
+            />
         <activity
             android:name=".professorCardList"
-            android:exported="true" />
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize"
+            />
         <receiver android:name= ".PublishNotification" />
     </application>
 

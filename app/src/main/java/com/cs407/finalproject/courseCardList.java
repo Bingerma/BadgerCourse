@@ -1,17 +1,20 @@
 package com.cs407.finalproject;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.window.layout.WindowMetrics;
 import androidx.window.layout.WindowInfoTracker;
 import androidx.window.layout.WindowLayoutInfo;
 import androidx.window.layout.FoldingFeature;
@@ -42,12 +45,46 @@ public class courseCardList extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_course_card_list);
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        boolean folded = isDeviceFolded(configuration);
+        if (folded) {
+            setContentView(R.layout.activity_course_card_list);
+        } else {
+            setContentView(R.layout.activity_course_card_list_unfolded);
+        }
 
         setupBackButton();
         setupRecyclerView();
         fetchCourseData();
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean isFolded = isDeviceFolded(newConfig);
+
+        if (isFolded) {
+            setContentView(R.layout.activity_course_card_list);
+        } else {
+            setContentView(R.layout.activity_course_card_list_unfolded);
+        }
+        reinitializeComponents();
+    }
+
+    private boolean isDeviceFolded(Configuration config) {
+        float aspectRatio = (float) config.screenWidthDp / config.screenHeightDp;
+        return aspectRatio < 0.68;
+    }
+
+    private void reinitializeComponents() {
+        setupBackButton();
+        setupRecyclerView();
+        fetchCourseData();
+    }
+
+
+
 
     private void setupBackButton() {
         backButton = findViewById(R.id.button);

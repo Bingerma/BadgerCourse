@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.cs407.finalproject"
-        minSdk 26
+        minSdk 30
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -42,6 +42,15 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.work:work-runtime:2.9.0'
-    implementation 'androidx.window:window-java:1.2.0'
-    implementation 'androidx.window:window:1.2.0'
+    implementation "androidx.window:window:1.0.0"
+
+    // For Java-friendly APIs to register and unregister callbacks
+    implementation "androidx.window:window-java:1.0.0"
+
+    // For RxJava2 integration
+    implementation "androidx.window:window-rxjava2:1.0.0"
+
+    // For RxJava3 integration
+    implementation "androidx.window:window-rxjava3:1.0.0"
+
 }
