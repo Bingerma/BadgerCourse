@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,9 +69,7 @@ public class MainActivity extends AppCompatActivity {
         editTextSearch = findViewById(R.id.searchBarEditText);
         searchButton = findViewById(R.id.button4);
 
-        // Set up the adapter
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayList);
-
         // Set click listener for the search button
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 performSearch();
             }
         });
-
         // Set the listener for the Enter key on the keyboard
         editTextSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -124,8 +120,4 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
-
 }

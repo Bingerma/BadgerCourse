@@ -330,7 +330,6 @@ public class ProfessorDetails extends AppCompatActivity {
         String selectedProfessor = intent.getStringExtra("selectedProfessorName");
 
 
-//        redditList = findViewById(R.id.redditList);
         backButton = findViewById(R.id.backDetails);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -465,18 +464,6 @@ public class ProfessorDetails extends AppCompatActivity {
         queue.add(getGradeUrl);
 
         new FetchData(this).execute(selectedProfessor);
-
-//        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//
-//        List<CardItem> items = new ArrayList<>();
-//        items.add(new CardItem("Left Text 1", "Right Text 1"));
-//        items.add(new CardItem("Left Text 2", "Right Text 2"));
-//
-//        CardAdapter adapter = new CardAdapter(items);
-//        recyclerView.setAdapter(adapter);
-
-
     }
 }
 
