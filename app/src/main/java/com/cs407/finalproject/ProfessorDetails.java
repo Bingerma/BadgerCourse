@@ -1,6 +1,8 @@
 package com.cs407.finalproject;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -318,13 +320,46 @@ public class ProfessorDetails extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO: Make the layout adaptable
-        setContentView(R.layout.activity_professor_detail);
+
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        boolean folded = isDeviceFolded(configuration);
+
+        if (folded) {
+            setContentView(R.layout.activity_professor_detail);
+        } else {
+            setContentView(R.layout.activity_professor_detail_unfolded);
+        }
 
         initializeField();
         setBackButton();
         fetchData();
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        boolean isFolded = isDeviceFolded(newConfig);
+
+        if (isFolded) {
+            setContentView(R.layout.activity_professor_detail);
+        } else {
+            setContentView(R.layout.activity_professor_detail_unfolded);
+        }
+        reinitializeComponents();
+    }
+
+    private boolean isDeviceFolded(Configuration config) {
+        float aspectRatio = (float) config.screenWidthDp / config.screenHeightDp;
+        return aspectRatio < 0.68;
+    }
+
+    private void reinitializeComponents() {
+        initializeField();
+        setBackButton();
+        fetchData();
+    }
+
 
     private void initializeField() {
         Intent intent = getIntent();
