@@ -11,6 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.window.layout.WindowMetrics;
+import androidx.window.layout.WindowInfoTracker;
+import androidx.window.layout.WindowLayoutInfo;
+import androidx.window.layout.FoldingFeature;
+
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,7 +37,87 @@ public class courseCardList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CardAdapter adapter;
     private List<CardItem> cardItemList;
-    Button backButton;
+    private Button backButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_course_card_list);
+
+        setupBackButton();
+        setupRecyclerView();
+        fetchCourseData();
+    }
+
+    private void setupBackButton() {
+        backButton = findViewById(R.id.button);
+        backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(courseCardList.this, MainActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void setupRecyclerView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        cardItemList = new ArrayList<>();
+        adapter = new CardAdapter(cardItemList, this::onCardClicked);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void onCardClicked(int position) {
+        Intent intent = new Intent(courseCardList.this, professorCardList.class);
+        CardItem clickedItem = cardItemList.get(position);
+        intent.putExtra("courseUrl", clickedItem.getUrl());
+        startActivity(intent);
+    }
+
+    private void fetchCourseData() {
+        Intent intent = getIntent();
+        String userInput = intent.getStringExtra("userInput");
+
+        String api = "https://api.madgrades.com/v1/courses?query=" + userInput;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, api,
+                this::onResponse, this::onErrorResponse) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
+                return headers;
+            }
+        };
+        queue.add(stringRequest);
+    }
+
+    private void onResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray results = jsonObject.getJSONArray("results");
+            cardItemList.clear();
+            for (int i = 0; i < results.length(); i++) {
+                JSONObject result = results.getJSONObject(i);
+                processCourse(result);
+            }
+            adapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void processCourse(JSONObject result) throws JSONException {
+        String courseName = result.getString("name");
+        int code = result.getInt("number");
+        String abrv = result.getJSONArray("subjects").getJSONObject(0).getString("abbreviation");
+        String courseNameShort = abrv + " " + code;
+        String urlPage = result.getString("url");
+        cardItemList.add(new CardItem(courseNameShort, courseName, urlPage));
+    }
+
+    private void onErrorResponse(VolleyError error) {
+        Log.d("Error.Response", error.toString());
+    }
 
     public static class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
         private final List<CardItem> cardItemList;
@@ -92,83 +177,6 @@ public class courseCardList extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_course_card_list);
-        Intent intent = getIntent();
-        String userInput = intent.getStringExtra("userInput");
-
-        backButton = findViewById(R.id.button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(courseCardList.this, MainActivity.class);
-                startActivity(intent1);
-            }
-        });
-
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Initialize cardItemList and populate it with data
-        cardItemList = new ArrayList<>();
-        {
-            String api = "https://api.madgrades.com/v1/courses?query=" + userInput;
-            RequestQueue queue = Volley.newRequestQueue(this);
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, api,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                JSONArray results = jsonObject.getJSONArray("results");
-                                cardItemList.clear();
-                                for (int i = 0; i < results.length(); i++) {
-                                    JSONObject result = results.getJSONObject(i);
-                                    String courseName = result.getString("name");
-                                    int code = result.getInt("number");
-                                    String abrv = result.getJSONArray("subjects").getJSONObject(0).getString("abbreviation");
-                                    String courseNameShort = abrv + " " + String.valueOf(code);
-                                    String urlPage = result.getString("url");
-                                    cardItemList.add(new CardItem(courseNameShort, courseName, urlPage));
-                                }
-                                adapter.notifyDataSetChanged();
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    // Handle error
-                    Log.d("Error.Response", error.toString());
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<String, String>();
-                    headers.put("Content-Type", "application/json");
-                    headers.put("Authorization", "Token token=405f8fbc02dd4b7eb560ce722c7be74a");
-                    return headers;
-                }
-            };
-            queue.add(stringRequest);
-        }
-        adapter = new CardAdapter(cardItemList, new CardAdapter.OnCardClickListener() {
-            @Override
-            public void onCardClick(int position) {
-                Intent intent = new Intent(courseCardList.this, professorCardList.class);
-                CardItem clickedItem = cardItemList.get(position);
-//                intent.putExtra("title", clickedItem.getTitle());
-//                intent.putExtra("content", clickedItem.getContent());
-                intent.putExtra("courseUrl", clickedItem.getUrl());
-                startActivity(intent);
-            }
-        });
-
-        recyclerView.setAdapter(adapter);
-    }
 
     public void updateData(List<CardItem> newData) {
         cardItemList.clear();
