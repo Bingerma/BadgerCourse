@@ -1,4 +1,5 @@
 package com.cs407.finalproject;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -7,17 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.window.layout.WindowInfoTracker;
-import androidx.window.layout.WindowLayoutInfo;
-import androidx.window.layout.FoldingFeature;
 
 
 import com.android.volley.Request;
@@ -30,6 +27,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +39,7 @@ public class courseCardList extends AppCompatActivity {
     private CardAdapter adapter;
     private List<CardItem> cardItemList;
     private Button backButton;
+    private Button searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +53,7 @@ public class courseCardList extends AppCompatActivity {
             setContentView(R.layout.activity_course_card_list_unfolded);
         }
 
-        setupBackButton();
-        setupRecyclerView();
-        fetchCourseData();
+        reinitializeComponents();
     }
 
     @Override
@@ -81,14 +78,22 @@ public class courseCardList extends AppCompatActivity {
         setupBackButton();
         setupRecyclerView();
         fetchCourseData();
+        setUpSearchButton();
     }
-
-
 
 
     private void setupBackButton() {
         backButton = findViewById(R.id.button);
         backButton.setOnClickListener(v -> {
+            Intent intent = new Intent(courseCardList.this, MainActivity.class);
+            startActivity(intent);
+        });
+    }
+
+
+    private void setUpSearchButton() {
+        searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener(click -> {
             Intent intent = new Intent(courseCardList.this, MainActivity.class);
             startActivity(intent);
         });
@@ -106,6 +111,8 @@ public class courseCardList extends AppCompatActivity {
         Intent intent = new Intent(courseCardList.this, professorCardList.class);
         CardItem clickedItem = cardItemList.get(position);
         intent.putExtra("courseUrl", clickedItem.getUrl());
+        intent.putExtra("courseTitle", clickedItem.getTitle());
+        intent.putExtra("courseContent", clickedItem.getContent());
         startActivity(intent);
     }
 
@@ -137,6 +144,10 @@ public class courseCardList extends AppCompatActivity {
                 JSONObject result = results.getJSONObject(i);
                 processCourse(result);
             }
+            int resultCount = cardItemList.size();
+            String searchResult = "Your search returned " + resultCount + " result(s).";
+            TextView textView = findViewById(R.id.courseInfoTextContent);
+            textView.setText(searchResult);
             adapter.notifyDataSetChanged();
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -225,18 +236,22 @@ public class courseCardList extends AppCompatActivity {
         private final String title;
         private final String content;
         private final String url;
-        public CardItem(String title, String content, String url){
+
+        public CardItem(String title, String content, String url) {
             this.title = title;
             this.content = content;
             this.url = url;
         }
+
         public String getTitle() {
             return title;
         }
-        public String getContent(){
+
+        public String getContent() {
             return content;
         }
-        public String getUrl(){
+
+        public String getUrl() {
             return url;
         }
     }

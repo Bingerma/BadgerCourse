@@ -20,6 +20,31 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="3dp"
             android:layout_marginBottom="8dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseAbrv"
+                    android:textStyle="bold"
+                    android:textSize="18sp">
+                </TextView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseName"
+                    android:textStyle="normal"
+                    android:textSize="16sp"
+                    >
+                </TextView>
+
+            </LinearLayout>
+
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 

@@ -38,6 +38,8 @@ public class professorCardList extends AppCompatActivity {
     private List<CardItem> cardItemList;
     private String courseUrl;
     private String apiEndpoint;
+    private String courseAbrv;
+    private String courseName;
     public static class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
         private final List<CardItem> cardItemList;
         public CardAdapter(List<CardItem> cardItemList) {
@@ -139,7 +141,14 @@ public class professorCardList extends AppCompatActivity {
     private void initializeFields() {
         Intent intent = getIntent();
         courseUrl = intent.getStringExtra("courseUrl");
+        courseAbrv = intent.getStringExtra("courseTitle") + ":";
+        courseName = intent.getStringExtra("courseContent");
+
         apiEndpoint = courseUrl + "/grades";
+        TextView textView = findViewById(R.id.courseAbrv);
+        textView.setText(courseAbrv);
+        textView = findViewById(R.id.courseName);
+        textView.setText(courseName);
 
         backButton = findViewById(R.id.buttonPf);
         recyclerView = findViewById(R.id.recyclerViewPf);
