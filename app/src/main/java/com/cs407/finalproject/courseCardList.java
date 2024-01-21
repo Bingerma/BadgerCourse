@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -40,14 +39,15 @@ public class courseCardList extends AppCompatActivity {
     private List<CardItem> cardItemList;
     private Button backButton;
     private Button searchButton;
+    private boolean isFolded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Resources resources = getResources();
         Configuration configuration = resources.getConfiguration();
-        boolean folded = isDeviceFolded(configuration);
-        if (folded) {
+        isFolded = isDeviceFolded(configuration);
+        if (isFolded) {
             setContentView(R.layout.activity_course_card_list);
         } else {
             setContentView(R.layout.activity_course_card_list_unfolded);
@@ -59,7 +59,7 @@ public class courseCardList extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        boolean isFolded = isDeviceFolded(newConfig);
+        isFolded = isDeviceFolded(newConfig);
 
         if (isFolded) {
             setContentView(R.layout.activity_course_card_list);
@@ -78,7 +78,10 @@ public class courseCardList extends AppCompatActivity {
         setupBackButton();
         setupRecyclerView();
         fetchCourseData();
-        setUpSearchButton();
+        Log.d("myTag", String.valueOf(isFolded));
+        if (!isFolded) {
+            setUpSearchButton();
+        }
     }
 
 
@@ -144,10 +147,13 @@ public class courseCardList extends AppCompatActivity {
                 JSONObject result = results.getJSONObject(i);
                 processCourse(result);
             }
-            int resultCount = cardItemList.size();
-            String searchResult = "Your search returned " + resultCount + " result(s).";
-            TextView textView = findViewById(R.id.courseInfoTextContent);
-            textView.setText(searchResult);
+            if (!isFolded){
+                int resultCount = cardItemList.size();
+                Log.d("myTag", "here");
+                String searchResult = "Your search returned " + resultCount + " result(s).";
+                TextView textView = findViewById(R.id.courseInfoTextContent);
+                textView.setText(searchResult);
+            }
             adapter.notifyDataSetChanged();
         } catch (JSONException e) {
             throw new RuntimeException(e);
