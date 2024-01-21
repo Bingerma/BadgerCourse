@@ -14,7 +14,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/activity_course_card" />
+        tools:listitem="@layout/activity_course_card"
+        android:layout_marginTop="8dp"
+        />
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
