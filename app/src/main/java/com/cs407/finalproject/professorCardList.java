@@ -40,6 +40,7 @@ public class professorCardList extends AppCompatActivity {
     private String apiEndpoint;
     private String courseAbrv;
     private String courseName;
+    private boolean isFolded;
     public static class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
         private final List<CardItem> cardItemList;
         public CardAdapter(List<CardItem> cardItemList) {
@@ -99,8 +100,8 @@ public class professorCardList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Resources resources = getResources();
         Configuration configuration = resources.getConfiguration();
-        boolean folded = isDeviceFolded(configuration);
-        if (folded) {
+        isFolded = isDeviceFolded(configuration);
+        if (isFolded) {
             setContentView(R.layout.activity_professor_card_list);
         } else {
             setContentView(R.layout.activity_professor_card_list_unfolded);
@@ -116,7 +117,7 @@ public class professorCardList extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        boolean isFolded = isDeviceFolded(newConfig);
+        isFolded = isDeviceFolded(newConfig);
 
         if (isFolded) {
             setContentView(R.layout.activity_professor_card_list);
@@ -148,6 +149,12 @@ public class professorCardList extends AppCompatActivity {
         Log.d("myTag", courseAbrv);
         Log.d("myTag", courseName);
 
+        if (!isFolded){
+            TextView textView = findViewById(R.id.courseAbrv);
+            textView.setText(courseAbrv);
+            textView = findViewById(R.id.courseName);
+            textView.setText(courseName);
+        }
 
         backButton = findViewById(R.id.buttonPf);
         recyclerView = findViewById(R.id.recyclerViewPf);
