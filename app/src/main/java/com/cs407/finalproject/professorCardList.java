@@ -141,14 +141,13 @@ public class professorCardList extends AppCompatActivity {
     private void initializeFields() {
         Intent intent = getIntent();
         courseUrl = intent.getStringExtra("courseUrl");
-        courseAbrv = intent.getStringExtra("courseTitle") + ":";
+        courseAbrv = intent.getStringExtra("courseTitle");
         courseName = intent.getStringExtra("courseContent");
 
         apiEndpoint = courseUrl + "/grades";
-        TextView textView = findViewById(R.id.courseAbrv);
-        textView.setText(courseAbrv);
-        textView = findViewById(R.id.courseName);
-        textView.setText(courseName);
+        Log.d("myTag", courseAbrv);
+        Log.d("myTag", courseName);
+
 
         backButton = findViewById(R.id.buttonPf);
         recyclerView = findViewById(R.id.recyclerViewPf);
