@@ -20,60 +20,111 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="3dp"
             android:layout_marginBottom="8dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="16dp">
-                <TextView
+                android:orientation="vertical">
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseAbrv"
-                    android:textStyle="bold"
-                    android:textSize="18sp">
-                </TextView>
-                <TextView
+                    android:layout_height="0dp"
+                    android:layout_weight="9">
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        >
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:paddingTop="16dp">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseAbrv"
+                                android:textStyle="bold"
+                                android:textSize="18sp">
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseName"
+                                android:textStyle="normal"
+                                android:textSize="16sp"
+                                >
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseCredit"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp"
+                                >
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseRequisite"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp">
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseDesignation"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp">
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseRepeatable"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp">
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseLastTaught"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp">
+                            </TextView>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/courseDescription"
+                                android:textSize="18sp"
+                                android:paddingTop="10dp"
+                                >
+                            </TextView>
+                        </LinearLayout>
+                    </ScrollView>
+                </FrameLayout>
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseName"
-                    android:textStyle="normal"
-                    android:textSize="16sp"
-                    >
-                </TextView>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseCredit"
-                    android:textSize="18sp"
-                    android:paddingTop="10dp"
-                    >
-                </TextView>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseRequisite"
-                    android:textSize="18sp"
-                    android:paddingTop="10dp">
-                </TextView>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseDesignation"
-                    android:textSize="18sp"
-                    android:paddingTop="10dp">
-                </TextView>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/courseRepeatable"
-                    android:textSize="18sp"
-                    android:paddingTop="10dp">
-                </TextView>
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
 
+                        >
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/home_button"
+                            android:background="@drawable/home_button_custom"
+                            android:id="@+id/home_button2"
+                            android:layout_gravity="center"
+                            >
+                        </Button>
+                    </LinearLayout>
+                </FrameLayout>
             </LinearLayout>
-
         </androidx.cardview.widget.CardView>
     </FrameLayout>
 

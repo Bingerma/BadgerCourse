@@ -42,6 +42,7 @@ public class professorCardList extends AppCompatActivity {
     private String courseAbrv;
     private String courseName;
     private boolean isFolded;
+    private Button searchButton;
     public static class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder> {
         private final List<CardItem> cardItemList;
         public CardAdapter(List<CardItem> cardItemList) {
@@ -133,6 +134,7 @@ public class professorCardList extends AppCompatActivity {
         setupBackButtonListener();
         setupRecyclerView();
         fetchDataFromApi();
+        setUpSearchButton();
     }
 
     private void initializeFields() {
@@ -200,9 +202,7 @@ public class professorCardList extends AppCompatActivity {
             extractedText = "";
             Log.d("newTag4", "not avaiable");
         }
-//        Log.d("newTag4", extractedText);
 
-        //Find the credits
         if (!extractedText.equals("")) {
             isValid = true;
             startIndex = extractedText.indexOf("\n");
@@ -211,7 +211,7 @@ public class professorCardList extends AppCompatActivity {
 
             startIndex = extractedText.indexOf(".");
             endIndex = extractedText.indexOf("View detailsRequisites");
-            description = extractedText.substring(startIndex+2, endIndex-1);
+            description = "<b>Description: </b>" + extractedText.substring(startIndex+2, endIndex-1);
 
 
             Log.d("newTag4", extractedText);
@@ -231,13 +231,10 @@ public class professorCardList extends AppCompatActivity {
 
             startIndex = extractedText.indexOf("Repeatable for Credit: ");
             endIndex = extractedText.indexOf("Last Taught: ");
-            repeatable = extractedText.substring(startIndex+23, endIndex);
+            repeatable = "<b>Repeatable for Credits: </b>" + extractedText.substring(startIndex+23, endIndex);
 
-
-
-
-
-
+            startIndex = extractedText.indexOf("Last Taught: ");
+            lastTaught = "<b>Last Taught: </b>" + extractedText.substring(startIndex + 13);
 
             TextView textView = findViewById(R.id.courseCredit);
             textView.setText(Html.fromHtml(credits));
@@ -247,7 +244,19 @@ public class professorCardList extends AppCompatActivity {
             textView.setText(Html.fromHtml(designation));
             textView = findViewById(R.id.courseRepeatable);
             textView.setText(Html.fromHtml(repeatable));
+            textView = findViewById(R.id.courseLastTaught);
+            textView.setText(Html.fromHtml(lastTaught));
+            textView = findViewById(R.id.courseDescription);
+            textView.setText(Html.fromHtml(description));
         }
+    }
+
+    private void setUpSearchButton() {
+        searchButton = findViewById(R.id.home_button2);
+        searchButton.setOnClickListener(click -> {
+            Intent intent = new Intent(professorCardList.this, MainActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void onWebErrorResponse(VolleyError e){
