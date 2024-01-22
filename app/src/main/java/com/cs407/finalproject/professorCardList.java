@@ -134,7 +134,7 @@ public class professorCardList extends AppCompatActivity {
         setupBackButtonListener();
         setupRecyclerView();
         fetchDataFromApi();
-        setUpSearchButton();
+
     }
 
     private void initializeFields() {
@@ -142,7 +142,6 @@ public class professorCardList extends AppCompatActivity {
         courseUrl = intent.getStringExtra("courseUrl");
         courseAbrv = intent.getStringExtra("courseTitle");
         courseName = intent.getStringExtra("courseContent");
-
         apiEndpoint = courseUrl + "/grades";
 
         if (!isFolded){
@@ -151,6 +150,7 @@ public class professorCardList extends AppCompatActivity {
             textView = findViewById(R.id.courseName);
             textView.setText(courseName);
             fetchCourseInfo(courseAbrv);
+            setUpSearchButton();
         }
 
         backButton = findViewById(R.id.buttonPf);
