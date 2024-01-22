@@ -192,7 +192,9 @@ public class professorCardList extends AppCompatActivity {
         String lastTaught;
         boolean isValid = false;
 
-        int startIndex = normalizedString.indexOf(courseAbrv);
+        Log.d("Test", normalizedString);
+        String formattedCourseAbrv = courseAbrv + " — ";
+        int startIndex = normalizedString.indexOf(formattedCourseAbrv);
         int endIndex = normalizedString.indexOf("\n", normalizedString.indexOf(endString, startIndex));
 
         if (startIndex != -1 && endIndex != -1){
