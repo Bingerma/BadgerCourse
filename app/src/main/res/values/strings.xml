@@ -11,5 +11,5 @@
     <string name="courseListInfoContent">Your search returned 0 results</string>
     <string name="courseListInfoHint">(Hint: To yield better results, avoid mis-spellings,
          or try to input complete names. eg: type Computer Science 200 instead of CS200)</string>
-    <string name="home_button">Search</string>
+    <string name="home_button">Home</string>
 </resources>
