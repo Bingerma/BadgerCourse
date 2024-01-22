@@ -42,6 +42,35 @@
                     android:textSize="16sp"
                     >
                 </TextView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseCredit"
+                    android:textSize="18sp"
+                    android:paddingTop="10dp"
+                    >
+                </TextView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseRequisite"
+                    android:textSize="18sp"
+                    android:paddingTop="10dp">
+                </TextView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseDesignation"
+                    android:textSize="18sp"
+                    android:paddingTop="10dp">
+                </TextView>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/courseRepeatable"
+                    android:textSize="18sp"
+                    android:paddingTop="10dp">
+                </TextView>
 
             </LinearLayout>
 

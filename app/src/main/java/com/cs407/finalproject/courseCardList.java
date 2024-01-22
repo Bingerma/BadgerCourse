@@ -78,7 +78,6 @@ public class courseCardList extends AppCompatActivity {
         setupBackButton();
         setupRecyclerView();
         fetchCourseData();
-        Log.d("myTag", String.valueOf(isFolded));
         if (!isFolded) {
             setUpSearchButton();
         }
@@ -149,7 +148,6 @@ public class courseCardList extends AppCompatActivity {
             }
             if (!isFolded){
                 int resultCount = cardItemList.size();
-                Log.d("myTag", "here");
                 String searchResult = "Your search returned " + resultCount + " result(s).";
                 TextView textView = findViewById(R.id.courseInfoTextContent);
                 textView.setText(searchResult);

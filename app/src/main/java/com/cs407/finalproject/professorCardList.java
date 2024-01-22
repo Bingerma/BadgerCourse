@@ -3,6 +3,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,12 +107,7 @@ public class professorCardList extends AppCompatActivity {
         } else {
             setContentView(R.layout.activity_professor_card_list_unfolded);
         }
-
-
-        initializeFields();
-        setupBackButtonListener();
-        setupRecyclerView();
-        fetchDataFromApi();
+        reinitializeComponents();
     }
 
     @Override
@@ -146,19 +142,121 @@ public class professorCardList extends AppCompatActivity {
         courseName = intent.getStringExtra("courseContent");
 
         apiEndpoint = courseUrl + "/grades";
-        Log.d("myTag", courseAbrv);
-        Log.d("myTag", courseName);
 
         if (!isFolded){
             TextView textView = findViewById(R.id.courseAbrv);
             textView.setText(courseAbrv);
             textView = findViewById(R.id.courseName);
             textView.setText(courseName);
+            fetchCourseInfo(courseAbrv);
         }
 
         backButton = findViewById(R.id.buttonPf);
         recyclerView = findViewById(R.id.recyclerViewPf);
         cardItemList = new ArrayList<>();
+    }
+
+    private String fetchCourseInfo(String courseAbrv){
+        String processedCourseAbrv = processCourseAbrvWisc(courseAbrv);
+        String webUrl = "https://guide.wisc.edu/courses/" + processedCourseAbrv;
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, webUrl,
+                this::onWebResponse, this::onWebErrorResponse) {
+
+        };
+        queue.add(stringRequest);
+        return null;
+    }
+
+    private void onWebResponse(String res){
+        try {
+            processWebResponse(res);
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void processWebResponse(String response) throws JSONException {
+        String noHtmlString = response.replaceAll("<[^>]*>", "");
+        String normalizedString = noHtmlString.replace('\u00A0', ' ');
+        String endString = "View detailsRequisites:";
+        String extractedText;
+        String credits;
+        String description;
+        String pre_requisite;
+        String designation;
+        String repeatable;
+        String lastTaught;
+        boolean isValid = false;
+
+        int startIndex = normalizedString.indexOf(courseAbrv);
+        int endIndex = normalizedString.indexOf("\n", normalizedString.indexOf(endString, startIndex));
+
+        if (startIndex != -1 && endIndex != -1){
+            extractedText = normalizedString.substring(startIndex, endIndex);
+        }
+        else{
+            extractedText = "";
+            Log.d("newTag4", "not avaiable");
+        }
+//        Log.d("newTag4", extractedText);
+
+        //Find the credits
+        if (!extractedText.equals("")) {
+            isValid = true;
+            startIndex = extractedText.indexOf("\n");
+            endIndex = extractedText.indexOf("\n", extractedText.indexOf("\n", startIndex + 1));
+            credits = "<b>Cr: </b>" + extractedText.substring(startIndex, endIndex);
+
+            startIndex = extractedText.indexOf(".");
+            endIndex = extractedText.indexOf("View detailsRequisites");
+            description = extractedText.substring(startIndex+2, endIndex-1);
+
+
+            Log.d("newTag4", extractedText);
+            startIndex = extractedText.indexOf("detailsRequisites:");
+            if (extractedText.contains("Course Designation:")){
+                endIndex = extractedText.indexOf("Course Designation:");
+            }
+            else{
+                endIndex = extractedText.indexOf("CourseRepeatable");
+            }
+            pre_requisite = "<b>Pre Requisite: </b>" + extractedText.substring(startIndex+19, endIndex);
+
+            startIndex = extractedText.indexOf("Course Designation: ");
+            endIndex = extractedText.indexOf("Repeatable for Credit");
+            designation = "<b>Designation: </b>" + extractedText.substring(startIndex+20, endIndex);
+            designation = designation.replace("amp;", "");
+
+            startIndex = extractedText.indexOf("Repeatable for Credit: ");
+            endIndex = extractedText.indexOf("Last Taught: ");
+            repeatable = extractedText.substring(startIndex+23, endIndex);
+
+
+
+
+
+
+
+            TextView textView = findViewById(R.id.courseCredit);
+            textView.setText(Html.fromHtml(credits));
+            textView = findViewById(R.id.courseRequisite);
+            textView.setText(Html.fromHtml(pre_requisite));
+            textView = findViewById(R.id.courseDesignation);
+            textView.setText(Html.fromHtml(designation));
+            textView = findViewById(R.id.courseRepeatable);
+            textView.setText(Html.fromHtml(repeatable));
+        }
+    }
+
+    private void onWebErrorResponse(VolleyError e){
+        Log.d("Error.Response", e.toString());
+    }
+
+    private String processCourseAbrvWisc (String courseAbrv){
+        return courseAbrv.replaceAll("[0-9]", "")
+                .trim().toLowerCase().replace(" ", "_").replace("&", "_");
     }
 
     private void setupBackButtonListener() {
