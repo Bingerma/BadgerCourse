@@ -216,40 +216,59 @@ public class professorCardList extends AppCompatActivity {
             description = "<b>Description: </b>" + extractedText.substring(startIndex+2, endIndex-1);
 
 
-            Log.d("newTag4", extractedText);
+            Log.d("Test", extractedText);
+
             startIndex = extractedText.indexOf("detailsRequisites:");
             if (extractedText.contains("Course Designation:")){
                 endIndex = extractedText.indexOf("Course Designation:");
+                pre_requisite = "<b>Pre Requisite: </b>" + extractedText.substring(startIndex+19, endIndex);
+                TextView textView = findViewById(R.id.courseRequisite);
+                textView.setText(Html.fromHtml(pre_requisite));
             }
             else{
-                endIndex = extractedText.indexOf("CourseRepeatable");
+                endIndex = extractedText.indexOf("Repeatable for");
+                pre_requisite = "<b>Pre Requisite: </b>" + extractedText.substring(startIndex+19, endIndex);
+                TextView textView = findViewById(R.id.courseRequisite);
+                textView.setText(Html.fromHtml(pre_requisite));
             }
-            pre_requisite = "<b>Pre Requisite: </b>" + extractedText.substring(startIndex+19, endIndex);
 
             startIndex = extractedText.indexOf("Course Designation: ");
             endIndex = extractedText.indexOf("Repeatable for Credit");
-            designation = "<b>Designation: </b>" + extractedText.substring(startIndex+20, endIndex);
-            designation = designation.replace("amp;", "");
+            if (startIndex != -1 && endIndex != -1){
+                designation = "<b>Designation: </b>" + extractedText.substring(startIndex+20, endIndex);
+                designation = designation.replace("amp;", "");
+                TextView textView = findViewById(R.id.courseDesignation);
+                textView.setText(Html.fromHtml(designation));
+            }
+            else{
+                designation = "<b>Designation: </b> Not Applicable";
+                TextView textView = findViewById(R.id.courseDesignation);
+                textView.setText(Html.fromHtml(designation));
+            }
 
             startIndex = extractedText.indexOf("Repeatable for Credit: ");
             endIndex = extractedText.indexOf("Last Taught: ");
             repeatable = "<b>Repeatable for Credits: </b>" + extractedText.substring(startIndex+23, endIndex);
+            if (startIndex != -1 && endIndex != -1){
+                TextView textView = findViewById(R.id.courseRepeatable);
+                textView.setText(Html.fromHtml(repeatable));
+            }
 
             startIndex = extractedText.indexOf("Last Taught: ");
             lastTaught = "<b>Last Taught: </b>" + extractedText.substring(startIndex + 13);
+            if (startIndex != -1 && endIndex != -1){
+                TextView textView = findViewById(R.id.courseLastTaught);
+                textView.setText(Html.fromHtml(lastTaught));
+            }
 
             TextView textView = findViewById(R.id.courseCredit);
             textView.setText(Html.fromHtml(credits));
-            textView = findViewById(R.id.courseRequisite);
-            textView.setText(Html.fromHtml(pre_requisite));
-            textView = findViewById(R.id.courseDesignation);
-            textView.setText(Html.fromHtml(designation));
-            textView = findViewById(R.id.courseRepeatable);
-            textView.setText(Html.fromHtml(repeatable));
-            textView = findViewById(R.id.courseLastTaught);
-            textView.setText(Html.fromHtml(lastTaught));
+
             textView = findViewById(R.id.courseDescription);
             textView.setText(Html.fromHtml(description));
+        }
+        else{
+            Log.d("ErrPf", "here wisc no match");
         }
     }
 
