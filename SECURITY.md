@@ -5,5 +5,4 @@
 | 1.0.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
-
-Currently, vulerability reports are under the work. 
+For any vulnerability reports, please email badgerCourseRelease@gmail.com
