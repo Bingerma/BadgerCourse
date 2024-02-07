@@ -1,5 +1,3 @@
-# Security Policy
-
 ## Supported Versions
 
 | Version | Supported          |
@@ -8,4 +6,4 @@
 
 ## Reporting a Vulnerability
 
-Currently, vulerability are under the work. 
+Currently, vulerability reports are under the work. 
