@@ -1,4 +1,3 @@
-# BadgerCourse
 ## Description
 This app utilizes MadGrades to provide grade distribution information about particular instructor of courses at UWM. 
 It also offers RMP data, as well as particular course information pulled from WISC website. 
