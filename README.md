@@ -8,7 +8,9 @@ reports offered by Dean of UWM. Course information such as credits, pre-requisit
 official wisc website, and RMP data are scraped from their site. Due to the nature of commercial website
 (RMP), the data acquired might not be accurate nor reflecting the correct professor. Please be sure 
 to refer to the official RMP. 
-## Known Issues:
+## Known Issues
 When the device is unfolded, the GUI are skimmed, this will be fixed in the next patch
-## Future Work: 
+## Future Work
 Integration of WISC Api. Addition of Login/Sync features. 
+## Contact
+For any questions/issues/suggestions, please email at badgerCourseRelease@gmail.com
